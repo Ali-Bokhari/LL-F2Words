@@ -34,7 +34,16 @@ void printList(struct node_struct *list){
   while (list) {
     printf("%s\n", (char *)list->data);
     list = list->next;
-  };
+  }
+}
+
+void searchPrintList(struct node_struct *list){
+  struct node_struct *temp;
+  while (list) {
+    temp = list->data;
+    printf("%s\n", (char *)temp->data);
+    list = list->next;
+  }
 }
 
 struct node_struct *txt2words( FILE *fp ) {
@@ -119,7 +128,7 @@ int fake_strcmp (const void *str1, const void *str2) {
 
 
 struct node_struct*search( struct node_struct *list, char *target, int(*compar)(const void*,const void*)){
-  struct node_struct *final;
+  struct node_struct *final = NULL;
   struct node_struct *tail = list;
 
   while (tail) {
@@ -133,7 +142,7 @@ struct node_struct*search( struct node_struct *list, char *target, int(*compar)(
 }
 
 struct node_struct *copy( struct node_struct *start, struct node_struct *end ) {
-  struct node_struct *copied;
+  struct node_struct *copied = NULL;
 
   while (start && start!=end) {
     listAppend (&copied, start->data);
@@ -144,33 +153,23 @@ struct node_struct *copy( struct node_struct *start, struct node_struct *end ) {
 }
 
 int main(){
-  /* FILE *fp;
-  struct node_struct *final;
-  fp = fopen("text.txt", "r");
-  final = txt2words (fp);*/
-  struct node_struct *new;
-  struct node_struct *edited;
-  char *char1;
-  /*char *char2;
-  char *char3;
-  char *char4;*/
-  printf("mallocs");
-  char1 = malloc(6);
+  struct node_struct *new = NULL;
+  struct node_struct *copied = NULL;
+  char *char1 = malloc(sizeof(char)*6);
+  char *char2 = malloc(sizeof(char)*6);
+  char *char3 = malloc(sizeof(char)*6);
+  char *char4 = malloc(sizeof(char)*6);
   strcpy (char1, "char1\0");
-  /*strcpy (char2, "char2\0");
+  strcpy (char2, "char2\0");
   strcpy (char3, "char3\0");
-  strcpy (char4, "char2\0");*/
+  strcpy (char4, "char2\0");
   listAppend(&new, char1);
-  /*printList(new);
   listAppend(&new, char2);
-  printList(new);
   listAppend(&new, char3);
-  printList(new);
   listAppend(&new, char4);
+  copied = search (new, "char2", fake_strcmp);
   printList(new);
-  printf("Call time %s,%s,%s,%s\n", char1, char2, char3, char4);*/
-
-  /*edited = copy (new, new->next);*/
-  printList(new);
+  printf("searched:\n");
+  searchPrintList(copied);
   return 0;
 }
