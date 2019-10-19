@@ -52,7 +52,6 @@ struct node_struct *txt2words( FILE *fp ) {
   char *token;
 
   while ( fgets (str, 256, fp) ) {
-    /*printf("%s\n", str);*/
     if (*str == '\n') {
       token = malloc (2);
       strcpy (token, "\n\0");
@@ -70,7 +69,7 @@ struct node_struct *txt2words( FILE *fp ) {
 }
 
 char *get_word (char **str) {
-  char f = **str;
+  unsigned char f = **str;
   char *final;
   char type;
   int i;
@@ -161,11 +160,54 @@ struct node_struct *copy( struct node_struct *start, struct node_struct *end ) {
   return copied;
 }
 
+void ftext( FILE *fp, struct node_struct *list ){
+  int i;
+  int l;
+  char *f;
+  while (list) {
+    f = list->data;
+    fputs (f, fp);
+    i = i + strlen(f);
+    if (list->next == NULL) {
+      break;
+    }
+    if (*f == ',' || *f == ';' || *f == '!' || *f == '\"' || *f == '.') {
+      f = list->next->data;
+      if (*f != '\"' && ((*f != '-') && (f[1] != '-'))) {
+        if (i >= 80) {
+          fputs ("\n", fp);
+          i = 0;
+        } else {
+          fputs (" ", fp);
+          i++;
+        }
+        list = list->next;
+        continue;
+      }
+    }
+    l = strlen(f);
+    if ((f[l-1] >= 'a' && f[l-1] <= 'z') || (f[l-1] >= 'A' && f[l-1] <= 'Z') || (f[l-1] >= '0' && f[l-1] <= '9')) {
+      f = list->next->data;
+      if ((*f >= 'a' && *f <= 'z') || (*f >= 'A' && *f <= 'Z') || (*f >= '0' && *f <= '9')){
+        if (i == 80) {
+          fputs ("\n", fp);
+          i = 0;
+        } else {
+          fputs (" ", fp);
+          i++;
+        }
+      }
+    }
+    list = list->next;
+  }
+}
+
 int main(){
   struct node_struct *new = NULL;
-  FILE *fp = fopen ("text.txt", "r");
+  FILE *fp = fopen ("test3.txt", "r");
+  FILE *fp2 = fopen ("output.txt", "w");
   new = txt2words(fp);
-  printList(new);
+  ftext (fp2, new);
   fclose(fp);
   /*struct node_struct *copied = NULL;
   char *char1 = malloc(sizeof(char)*6);
