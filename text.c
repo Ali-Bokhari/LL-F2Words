@@ -76,7 +76,7 @@ struct node_struct *txt2words( FILE *fp ) {
     }
     str = sptr;
   }
-  
+
   *current = NULL;
   return head;
 }
@@ -151,8 +151,13 @@ char *get_word (char **str) {
   return NULL;
 }
 
-int fake_strcmp (const void *str1, const void *str2) {
-  return strcmp(str1, str2);
+int fake_strcmp (const void *a, const void *b) {
+  char *ptr_a, *ptr_b;
+
+  ptr_a = (char *)a;
+  ptr_b = (char *)b;
+
+  return strcmp( ptr_a, ptr_b );
 }
 
 
@@ -241,14 +246,90 @@ void free_list( struct node_struct *list, int free_data){
   }
 }
 
+int length( struct node_struct *list) {
+  int i;
+  for (i = 0; list; i++) {
+    list = list->next;
+  }
+  return i;
+}
+
+void split (struct node_struct *output[], struct node_struct *input) {
+  char alt = 0;
+  struct node_struct **cur0, **cur1;
+  cur0 = &(output[0]);
+  cur1 = &(output[1]);
+  while (input) {
+    if (!alt) {
+      *cur0 = malloc (sizeof(struct node_struct));
+      (*cur0)->data = input->data;
+      cur0 = &((*cur0)->next);
+      alt = 1;
+    } else {
+      *cur1 = malloc (sizeof(struct node_struct));
+      (*cur1)->data = input->data;
+      cur1 = &((*cur1)->next);
+      alt = 0;
+    }
+    input = input->next;
+  }
+  *cur0 = NULL;
+  *cur1 = NULL;
+}
+
+struct node_struct *mini_sort ( struct node_struct **list1, struct node_struct **list2, int max_nodes, int(*compar)(const void*,const void*)) {
+  struct node_struct *head, **current;
+  int pop1 = 0;
+  int pop2 = 0;
+  current = &head;
+  while (*list1 && *list2 && pop1 < max_nodes && pop2 < max_nodes) {
+    if ((*compar)((*list1)->data, (*list2)->data) < 1) {
+      *current = *list1;
+      *list1 = (*list1)->next;
+      (*current)->next = NULL;
+      current = &((*current)->next);
+      pop1++;
+    } else {
+      *current = *list2;
+      *list2 = (*list2)->next;
+      (*current)->next = NULL;
+      current = &((*current)->next);
+      pop2++;
+    }
+  }
+
+  while (*list1 && pop1 < max_nodes) {
+    *current = *list1;
+    *list1 = (*list1)->next;
+    (*current)->next = NULL;
+    current = &((*current)->next);
+    pop1++;
+  }
+
+  while (*list2 && pop2 < max_nodes) {
+    *current = *list2;
+    *list2 = (*list2)->next;
+    (*current)->next = NULL;
+    current = &((*current)->next);
+    pop2++;
+  }
+
+  *current = NULL;
+  return head;
+}
+
+struct node_struct *sort( struct node_struct *list, int(*compar)(const void*,const void*)) {
+  return NULL;
+}
+
 int main(){
-  struct node_struct *new = NULL;
+  /*struct node_struct *new = NULL;
   FILE *fp = fopen ("1342-0.txt", "r");
   FILE *fp2 = fopen ("output.txt", "w");
   new = txt2words(fp);
   ftext (fp2, new);
   fclose(fp);
-  free_list (new, 1);
+  free_list (new, 1);*/
   /*struct node_struct *copied = NULL;
   char *char1 = malloc(sizeof(char)*6);
   char *char2 = malloc(sizeof(char)*6);
@@ -266,5 +347,95 @@ int main(){
   printList(new);
   printf("searched:\n");
   searchPrintList(copied);*/
+  FILE *fp;
+
+  struct node_struct *input, *sorted;
+
+  struct node_struct *list[2];
+
+
+
+  fp = fopen( "sort_test.txt", "r" );
+
+  input = txt2words( fp );
+
+  fclose( fp );
+
+
+
+  printf( "input:\n" );
+
+  ftext( stdout, input );
+
+  printf( "\n" );
+
+
+
+  split( list, input );
+
+
+
+  printf( "%d %d %d\n", length(input), length(list[0]), length(list[1]) );
+
+
+
+  printf( "list[0]:\n" );
+
+  ftext( stdout, list[0] );
+
+  printf( "\n" );
+
+
+
+  printf( "list[1]:\n" );
+
+  ftext( stdout, list[1] );
+
+  printf( "\n" );
+
+
+
+  sorted = mini_sort( list, list+1, 4, fake_strcmp );
+
+
+
+  printf( "%d %d %d\n", length(sorted), length(list[0]), length(list[1]) );
+
+
+
+  printf( "sorted:\n" );
+
+  ftext( stdout, sorted );
+
+  printf( "\n" );
+
+
+
+  printf( "list[0]:\n" );
+
+  ftext( stdout, list[0] );
+
+  printf( "\n" );
+
+
+
+  printf( "list[1]:\n" );
+
+  ftext( stdout, list[1] );
+
+  printf( "\n" );
+
+
+
+  free_list( list[0], 0 );
+
+  free_list( list[1], 0 );
+
+  free_list( sorted, 0 );
+
+  free_list( input, 1 );
+
+
+
   return 0;
 }
