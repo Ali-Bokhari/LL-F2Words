@@ -55,9 +55,9 @@ struct node_struct *txt2words( FILE *fp ) {
   sptr = str;
 
   while ( fgets (str, 256, fp) ) {
-    if (*str == '\n') {
-      token = malloc (2);
-      strcpy (token, "\n\0");
+    if (*str == '\r' || *str == '\n') {
+      token = malloc (3);
+      strcpy (token, "\n\n\0");
       *current = malloc( sizeof( struct node_struct ) );
       (*current)->data = token;
       current = &((*current)->next);
@@ -188,13 +188,16 @@ struct node_struct *copy( struct node_struct *start, struct node_struct *end ) {
 }
 
 void ftext( FILE *fp, struct node_struct *list ){
-  int i;
+  int i = 0;
   int l;
   char *f;
   while (list) {
     f = list->data;
     fputs (f, fp);
     i = i + strlen(f);
+    if (*f == '\n') {
+      i = 0;
+    }
     if (list->next == NULL) {
       break;
     }
@@ -208,9 +211,9 @@ void ftext( FILE *fp, struct node_struct *list ){
           fputs (" ", fp);
           i++;
         }
-        list = list->next;
-        continue;
       }
+      list = list->next;
+      continue;
     }
     l = strlen(f);
     if ((f[l-1] >= 'a' && f[l-1] <= 'z') || (f[l-1] >= 'A' && f[l-1] <= 'Z') || (f[l-1] >= '0' && f[l-1] <= '9')) {
@@ -377,43 +380,4 @@ void remove_repeats(struct node_struct *list, int(*compar)(const void*,const voi
   }
 }
 
-int main(){
-  /*struct node_struct *new = NULL;
-  FILE *fp = fopen ("1342-0.txt", "r");
-  FILE *fp2 = fopen ("output.txt", "w");
-  new = txt2words(fp);
-  ftext (fp2, new);
-  fclose(fp);
-  free_list (new, 1);*/
-  /*struct node_struct *copied = NULL;
-  char *char1 = malloc(sizeof(char)*6);
-  char *char2 = malloc(sizeof(char)*6);
-  char *char3 = malloc(sizeof(char)*6);
-  char *char4 = malloc(sizeof(char)*6);
-  strcpy (char1, "char1\0");
-  strcpy (char2, "char2\0");
-  strcpy (char3, "char3\0");
-  strcpy (char4, "char2\0");
-  listAppend(&new, char1);
-  listAppend(&new, char2);
-  listAppend(&new, char3);
-  listAppend(&new, char4);
-  copied = search (new, "char2", fake_strcmp);
-  printList(new);
-  printf("searched:\n");
-  searchPrintList(copied);*/
-
-  FILE *fp;
-  struct node_struct *input, *sorted;
-  fp = fopen( "1342-0.txt", "r" );
-  input = txt2words( fp );
-  fclose( fp );
-  sorted = sort( input, fake_strcmp );
-  printf( "%d %d\n", length( input ), length( sorted ) );
-  remove_repeats( sorted, fake_strcmp );
-  printf( "%d unique words:\n", length( sorted ) );
-  ftext( stdout, sorted );
-  free_list( sorted, 0 );
-  free_list( input, 1 );
-  return 0;
-}
+int main(){return 0;}
