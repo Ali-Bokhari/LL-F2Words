@@ -9,6 +9,11 @@ struct node_struct {
   struct node_struct *next;
 };
 
+struct queue {
+  struct node_struct *head;
+  struct node_struct **tail;
+};
+
 char *get_word (char **str);
 struct node_struct *txt2words( FILE *fp );
 struct node_struct*search( struct node_struct *list, char *target, int(*compar)(const void*,const void*));

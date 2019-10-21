@@ -90,7 +90,7 @@ char *get_word (char **str) {
     *str = *str + 1;
     return get_word(str);
   }*/
-  while (f == ' ') {
+  while (f == ' ' || f == '\r') {
     *str = *str + 1;
     f = **str;
   }
@@ -277,8 +277,9 @@ void split (struct node_struct *output[], struct node_struct *input) {
   *cur1 = NULL;
 }
 
-struct node_struct *mini_sort ( struct node_struct **list1, struct node_struct **list2, int max_nodes, int(*compar)(const void*,const void*)) {
+struct queue mini_sort ( struct node_struct **list1, struct node_struct **list2, int max_nodes, int(*compar)(const void*,const void*)) {
   struct node_struct *head, **current;
+  struct queue final;
   int pop1 = 0;
   int pop2 = 0;
   current = &head;
@@ -314,12 +315,52 @@ struct node_struct *mini_sort ( struct node_struct **list1, struct node_struct *
     pop2++;
   }
 
-  *current = NULL;
-  return head;
+  /**current = NULL;*/
+  final.head = head;
+  final.tail = current;
+  return final;
 }
 
+void alternate (struct node_struct**list, struct node_struct **list1, struct node_struct **list2, int max_nodes, int(*compar)(const void*,const void*)) {
+  struct queue output[2];
+  struct queue moutput;
+  char target = 0;
+  output[0].head = NULL;
+  output[0].tail = &(output[0].head);
+  output[1].head = NULL;
+  output[1].tail = &(output[1].head);
+
+  while (*list1 || *list2) {
+    moutput = mini_sort (list1, list2, max_nodes, compar);
+    if (!target) {
+      *(output[0].tail) = moutput.head;
+      output[0].tail = moutput.tail;
+      target = 1;
+    } else {
+      *(output[1].tail) = moutput.head;
+      output[1].tail = moutput.tail;
+      target = 0;
+    }
+  }
+  list[0] = output[0].head;
+  list[1] = output[1].head;
+}
+
+
 struct node_struct *sort( struct node_struct *list, int(*compar)(const void*,const void*)) {
-  return NULL;
+  struct node_struct *splited[2];
+  int i;
+  split (splited, list);
+
+  for (i = 1; splited[0] && splited[1]; i+=i) {
+    alternate (splited, splited, splited+1, i, compar);
+  }
+
+  if (splited[0]) {
+    return splited[0];
+  } else {
+    return splited[1];
+  }
 }
 
 int main(){
@@ -347,15 +388,16 @@ int main(){
   printList(new);
   printf("searched:\n");
   searchPrintList(copied);*/
-  FILE *fp;
+
+  FILE *fp, *fp2, *fp3;
 
   struct node_struct *input, *sorted;
 
-  struct node_struct *list[2];
 
 
-
-  fp = fopen( "sort_test.txt", "r" );
+  fp = fopen( "1342-0.txt", "r" );
+  fp3 = fopen( "output.txt", "w" );
+  fp2 = fopen( "sorted.txt", "w" );
 
   input = txt2words( fp );
 
@@ -363,73 +405,16 @@ int main(){
 
 
 
-  printf( "input:\n" );
-
-  ftext( stdout, input );
-
-  printf( "\n" );
+  sorted = sort (input, fake_strcmp);
 
 
 
-  split( list, input );
+  printf( "input: %d, sorted: %d\n", length(input), length(sorted));
 
+  ftext( fp2, sorted );
+  ftext (fp3, input );
 
-
-  printf( "%d %d %d\n", length(input), length(list[0]), length(list[1]) );
-
-
-
-  printf( "list[0]:\n" );
-
-  ftext( stdout, list[0] );
-
-  printf( "\n" );
-
-
-
-  printf( "list[1]:\n" );
-
-  ftext( stdout, list[1] );
-
-  printf( "\n" );
-
-
-
-  sorted = mini_sort( list, list+1, 4, fake_strcmp );
-
-
-
-  printf( "%d %d %d\n", length(sorted), length(list[0]), length(list[1]) );
-
-
-
-  printf( "sorted:\n" );
-
-  ftext( stdout, sorted );
-
-  printf( "\n" );
-
-
-
-  printf( "list[0]:\n" );
-
-  ftext( stdout, list[0] );
-
-  printf( "\n" );
-
-
-
-  printf( "list[1]:\n" );
-
-  ftext( stdout, list[1] );
-
-  printf( "\n" );
-
-
-
-  free_list( list[0], 0 );
-
-  free_list( list[1], 0 );
+  fclose(fp2);
 
   free_list( sorted, 0 );
 
