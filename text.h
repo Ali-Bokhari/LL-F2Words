@@ -22,3 +22,4 @@ void ftext( FILE *fp, struct node_struct *list );
 struct node_struct *sort( struct node_struct *list, int(*compar)(const void*,const void*));
 void free_list( struct node_struct *list, int free_data);
 int length( struct node_struct *list);
+void remove_repeats(struct node_struct *list, int(*compar)(const void*,const void*));

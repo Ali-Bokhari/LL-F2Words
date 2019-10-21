@@ -77,6 +77,7 @@ struct node_struct *txt2words( FILE *fp ) {
     str = sptr;
   }
 
+  free (str);
   *current = NULL;
   return head;
 }
@@ -363,6 +364,19 @@ struct node_struct *sort( struct node_struct *list, int(*compar)(const void*,con
   }
 }
 
+void remove_repeats(struct node_struct *list, int(*compar)(const void*,const void*)) {
+  struct node_struct *temp;
+  while (list->next) {
+    if (!((*compar)(list->data, list->next->data))) {
+      temp = list->next;
+      list->next = list->next->next;
+      free (temp);
+    } else {
+      list = list->next;
+    }
+  }
+}
+
 int main(){
   /*struct node_struct *new = NULL;
   FILE *fp = fopen ("1342-0.txt", "r");
@@ -389,38 +403,17 @@ int main(){
   printf("searched:\n");
   searchPrintList(copied);*/
 
-  FILE *fp, *fp2, *fp3;
-
+  FILE *fp;
   struct node_struct *input, *sorted;
-
-
-
   fp = fopen( "1342-0.txt", "r" );
-  fp3 = fopen( "output.txt", "w" );
-  fp2 = fopen( "sorted.txt", "w" );
-
   input = txt2words( fp );
-
   fclose( fp );
-
-
-
-  sorted = sort (input, fake_strcmp);
-
-
-
-  printf( "input: %d, sorted: %d\n", length(input), length(sorted));
-
-  ftext( fp2, sorted );
-  ftext (fp3, input );
-
-  fclose(fp2);
-
+  sorted = sort( input, fake_strcmp );
+  printf( "%d %d\n", length( input ), length( sorted ) );
+  remove_repeats( sorted, fake_strcmp );
+  printf( "%d unique words:\n", length( sorted ) );
+  ftext( stdout, sorted );
   free_list( sorted, 0 );
-
   free_list( input, 1 );
-
-
-
   return 0;
 }
