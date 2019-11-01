@@ -379,5 +379,3 @@ void remove_repeats(struct node_struct *list, int(*compar)(const void*,const voi
     }
   }
 }
-
-int main(){return 0;}
